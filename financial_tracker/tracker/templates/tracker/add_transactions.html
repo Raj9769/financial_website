@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transaction Page - Personal Finance Tracker</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1D4ED8',
+                        secondary: '#F59E0B',
+                        background: '#F3F4F6',
+                    },
+                },
+            },
+        };
+    </script>
+
+</head>
+
+<body class="bg-background text-gray-900">
+    <!-- Header -->
+    <header class="bg-primary text-white py-4 shadow-md">
+        <div class="container mx-auto flex justify-between items-center px-4">
+            <h1 class="text-2xl font-bold">Finance Tracker</h1>
+            <nav>
+                <ul class="hidden md:flex space-x-6">
+                    <li><a href="{% url 'home' %}" class="hover:text-secondary">Dashboard</a></li>
+                    <li><a href="{% url 'add_transactions' %}" class="hover:text-secondary">Transactions</a></li>
+                    <li><a href="{% url 'add_income'%}" class="hover:text-secondary">Budgets</a></li>
+                </ul>
+                <!-- Mobile Menu Button -->
+                <div class="md:hidden">
+                    <button id="mobile-menu-button" class="focus:outline-none">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 6h16M4 12h16m-7 6h7"></path>
+                        </svg>
+                    </button>
+                </div>
+            </nav>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="md:hidden hidden bg-primary text-white py-4">
+            <ul class="space-y-4 text-center">
+                <li><a href="{% url 'home' %}" class="block py-2 hover:text-secondary">Dashboard</a></li>
+                <li><a href="{%url 'add_transactions' %}" class="block py-2 hover:text-secondary">Transactions</a></li>
+                <li><a href="{% url 'add_income' %}" class="block py-2 hover:text-secondary">Budgets</a></li>
+            </ul>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <section class="mb-12">
+            <h2 class="text-3xl font-semibold mb-6">Track Your Transactions</h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Transaction Form -->
+                <div class="bg-white shadow-lg rounded-lg p-6">
+                    <h3 class="text-xl font-bold text-gray-700 mb-4">Add a New Transaction</h3>
+                    <form method="POST" action="{% url 'add_transactions' %}" id="transactionForm">
+                        {% csrf_token %}
+                        <div class="mb-4">
+                            <label for="category" class="block text-sm font-semibold mb-1">Category</label>
+                            <select name="category" id="category"
+                                class="w-full border-gray-300 rounded-lg focus:border-primary focus:ring-primary">
+                                <option value="">Select Option</option>
+                                <option value="Food">Food</option>
+                                <option value="Entertainment">Entertainment</option>
+                                <option value="Bills">Bills</option>
+                                <option value="Travel">Travel</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div class="mb-4">
+                            <label for="description" class="block text-sm font-semibold mb-1">Description</label>
+                            <input type="text" name="description" id="description" required
+                                class="w-full border-gray-300 rounded-lg focus:border-primary focus:ring-primary">
+                        </div>
+                        <div class="mb-4">
+                            <label for="amount" class="block text-sm font-semibold mb-1">Amount</label>
+                            <input type="number" name="amount" id="amount" required
+                                class="w-full border-gray-300 rounded-lg focus:border-primary focus:ring-primary">
+                        </div>
+                        <div class="mb-4">
+                            <label for="date" class="block text-sm font-semibold mb-1">Date</label>
+                            <input type="date" name="date" id="date" required
+                                class="w-full border-gray-300 rounded-lg focus:border-primary focus:ring-primary">
+                        </div>
+                        <div class="mt-4">
+                            <button type="submit"
+                                class="w-full bg-primary text-white py-2 px-4 rounded-lg hover:bg-secondary">
+                                Add Transaction
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Recent Transactions & Budget Overview -->
+                <div class="bg-white shadow-lg rounded-lg p-6">
+                    <h3 class="text-xl font-bold text-gray-700 mb-4">Your Recent Transactions</h3>
+
+                    <div class="mb-6">
+                        <!-- Status Bar -->
+                        <div class="bg-gray-200 rounded-lg overflow-hidden h-6">
+                            <div class="bg-secondary h-full" style="width: '{{ budget_used_percentage }}%;'">
+                                <span class="text-white font-semibold text-sm px-2">{{ budget_used_percentage }}%</span>
+                            </div>
+                        </div>
+                        <p class="mt-2 text-sm text-gray-600">You have used ${{ total_expense }} of your ${{ total_income }} budget this month.</p>
+                    </div>
+
+                    <!-- Recent Transactions Table -->
+                    <table class="w-full table-auto">
+                        <thead>
+                            <tr>
+                                <th class="border px-4 py-2">Date</th>
+                                <th class="border px-4 py-2">Category</th>
+                                <th class="border px-4 py-2">Description</th>
+                                <th class="border px-4 py-2">Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody id="transactionTableBody">
+                            {% for transaction in transactions %}
+                            <tr>
+                                <td class="border px-4 py-2">{{ transaction.date }}</td>
+                                <td class="border px-4 py-2">{{ transaction.category }}</td>
+                                <td class="border px-4 py-2">{{ transaction.description }}</td>
+                                <td class="border px-4 py-2">${{ transaction.amount }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center text-gray-500 py-4">No transactions found.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-primary text-white py-6 mt-12">
+        <div class="container mx-auto px-4 text-center">
+            <p>&copy; 2024 Personal Finance Tracker. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript for Budget Status Bar -->
+    <script>
+        // Calculate and update the budget used percentage on page load
+        const budgetUsed = '{{ total_expense }}';
+        const totalIncome = '{{ total_income }}';
+        const budgetUsedPercentage = (budgetUsed / totalIncome) * 100;
+        document.querySelector('.bg-secondary').style.width = `${budgetUsedPercentage}%`;
+        document.querySelector('.bg-secondary span').textContent = `${budgetUsedPercentage.toFixed(2)}%`;
+
+        // JavaScript for Mobile Menu Toggle
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        mobileMenuButton.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+    </script>
+
+</body>
+</html>

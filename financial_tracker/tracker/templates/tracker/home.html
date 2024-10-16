@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Personal Finance Tracker</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Tailwind Configuration for custom colors -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1D4ED8',
+                        secondary: '#F59E0B',
+                        background: '#F3F4F6',
+                        accent: '#34D399',
+                    },
+                },
+            },
+        };
+    </script>
+</head>
+
+<body class="bg-background text-gray-900">
+    <!-- Header -->
+    <header class="bg-primary text-white py-4 shadow-md">
+        <div class="container mx-auto flex justify-between items-center px-4">
+            <h1 class="text-2xl font-bold">Finance Tracker</h1>
+            <nav>
+                <ul class="hidden md:flex space-x-6">
+                    <li><a href="{% url 'home' %}" class="hover:text-secondary">Dashboard</a></li>
+                    <li><a href="{% url 'add_transactions' %}" class="hover:text-secondary">Transactions</a></li>
+                    <li><a href="{% url 'add_income'%}" class="hover:text-secondary">Budgets</a></li>
+                </ul>
+                <!-- Mobile Menu Button -->
+                <div class="md:hidden">
+                    <button id="mobile-menu-button" class="focus:outline-none">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 6h16M4 12h16m-7 6h7"></path>
+                        </svg>
+                    </button>
+                </div>
+            </nav>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="md:hidden hidden bg-primary text-white py-4">
+            <ul class="space-y-4 text-center">
+                <li><a href="{% url 'home' %}" class="block py-2 hover:text-secondary">Dashboard</a></li>
+                <li><a href="{%url 'add_transactions' %}" class="block py-2 hover:text-secondary">Transactions</a></li>
+                <li><a href="{% url 'add_income' %}" class="block py-2 hover:text-secondary">Budgets</a></li>
+            </ul>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="bg-blue-600 text-white text-center py-16">
+        <div class="container mx-auto">
+            <h2 class="text-4xl font-bold mb-4">Welcome to Your Financial Tracker</h2>
+            <p class="text-lg mb-8">Track your income, expenses, and transactions all in one place.</p>
+            <a href="{% url 'add_income' %}" class="bg-white text-blue-600 py-2 px-6 rounded-lg shadow-md hover:bg-blue-100">
+                Get Started
+            </a>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="py-16 bg-gray-100">
+        <div class="container mx-auto text-center">
+            <h2 class="text-3xl font-bold text-gray-800 mb-6">Features</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="bg-white shadow-md p-6 rounded-lg">
+                    <h3 class="text-2xl font-bold text-blue-600 mb-4">Track Your Budget</h3>
+                    <p class="text-gray-600">Monitor your spending and ensure you're on track with your financial goals.</p>
+                </div>
+                <div class="bg-white shadow-md p-6 rounded-lg">
+                    <h3 class="text-2xl font-bold text-blue-600 mb-4">Manage Transactions</h3>
+                    <p class="text-gray-600">Easily add, edit, and delete transactions with a simple user interface.</p>
+                </div>
+                <div class="bg-white shadow-md p-6 rounded-lg">
+                    <h3 class="text-2xl font-bold text-blue-600 mb-4">Analyze Expenses</h3>
+                    <p class="text-gray-600">View your financial data with charts and insights for better decision-making.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+     <!-- Footer -->
+     <footer class="bg-primary text-white py-6 mt-12">
+        <div class="container mx-auto px-4 text-center">
+            <p>&copy; 2024 Personal Finance Tracker. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript for Mobile Menu Toggle -->
+    <script>
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        mobileMenuButton.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+    </script>
+
+</body>
+</html>

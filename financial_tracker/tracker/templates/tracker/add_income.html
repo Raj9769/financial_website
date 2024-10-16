@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Monthly Budget - Personal Finance Tracker</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1D4ED8',
+                        secondary: '#F59E0B',
+                        background: '#F3F4F6',
+                    },
+                },
+            },
+        };
+    </script>
+</head>
+
+<body class="bg-background text-gray-900">
+    <!-- Header -->
+    <header class="bg-primary text-white py-4 shadow-md">
+        <div class="container mx-auto flex justify-between items-center px-4">
+            <h1 class="text-2xl font-bold">Finance Tracker</h1>
+            <nav>
+                <ul class="hidden md:flex space-x-6">
+                    <li><a href="{% url 'home' %}" class="hover:text-secondary">Dashboard</a></li>
+                    <li><a href="{% url 'add_transactions' %}" class="hover:text-secondary">Transactions</a></li>
+                    <li><a href="{% url 'add_income'%}" class="hover:text-secondary">Budgets</a></li>
+                </ul>
+                <!-- Mobile Menu Button -->
+                <div class="md:hidden">
+                    <button id="mobile-menu-button" class="focus:outline-none">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 6h16M4 12h16m-7 6h7"></path>
+                        </svg>
+                    </button>
+                </div>
+            </nav>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="md:hidden hidden bg-primary text-white py-4">
+            <ul class="space-y-4 text-center">
+                <li><a href="{% url 'home' %}" class="block py-2 hover:text-secondary">Dashboard</a></li>
+                <li><a href="{%url 'add_transactions' %}" class="block py-2 hover:text-secondary">Transactions</a></li>
+                <li><a href="{% url 'add_income' %}" class="block py-2 hover:text-secondary">Budgets</a></li>
+            </ul>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <!-- Budget Section -->
+        <section class="mb-12">
+            <h2 class="text-3xl font-semibold mb-6">Manage Your Monthly Budget</h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Monthly Income Form (Add / Update) -->
+                <div class="bg-white shadow-lg rounded-lg p-6">
+                    <h3 class="text-xl font-bold text-gray-700 mb-4">Enter Your Monthly Income</h3>
+                    <form method="POST" action="{% url 'add_income' %}" id="incomeForm">
+                        {% csrf_token %}
+                        <input type="hidden" id="income_id" name="income_id" value="">
+                        {{ form.as_p }}
+                        <div class="mt-4">
+                            <button type="submit"
+                                class="w-full bg-primary text-white py-2 px-4 rounded-lg hover:bg-secondary">
+                                Save Income
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Display All Monthly Incomes -->
+                <div class="bg-white shadow-lg rounded-lg p-6">
+                    <h3 class="text-xl font-bold text-gray-700 mb-4">Your Monthly Incomes</h3>
+                    <table class="w-full table-auto">
+                        <thead>
+                            <tr>
+                                <th class="border px-4 py-2">Date</th>
+                                <th class="border px-4 py-2">Income</th>
+                                <th class="border px-4 py-2">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="incomeTableBody">
+                            {% for income in incomes %}
+                            <tr id="income-{{ income.id }}">
+                                <td class="border px-4 py-2">{{ income.date_added }}</td>
+                                <td class="border px-4 py-2">{{ income.monthly_income }}</td>
+                                <td class="border px-4 py-2">
+                                    <button onclick="editIncome('{{ income.id }}', '{{ income.monthly_income }}')"
+                                        class="bg-secondary text-white px-4 py-1 rounded-lg mr-2">Edit</button>
+                                    <button onclick="deleteIncome('{{ income.id }}')"
+                                        class="bg-red-500 text-white px-4 py-1 rounded-lg">Delete</button>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="3" class="text-center text-gray-500 py-4">No income records found.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-primary text-white py-6 mt-12">
+        <div class="container mx-auto px-4 text-center">
+            <p>&copy; 2024 Personal Finance Tracker. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript for Handling CRUD on the Same Page -->
+    <script>
+        // Handle edit action
+        function editIncome(id, monthly_income) {
+            document.getElementById('income_id').value = id;
+            document.getElementById('id_monthly_income').value = monthly_income;
+        }
+
+        // Handle delete action
+        function deleteIncome(id) {
+            if (confirm('Are you sure you want to delete this income?')) {
+                // Send a POST request to delete the income
+                fetch(`/income/delete/${id}/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}',
+                    },
+                }).then(response => {
+                    if (response.ok) {
+                        // Remove the deleted row from the table
+                        document.getElementById(`income-${id}`).remove();
+                    } else {
+                        alert('Error deleting income.');
+                    }
+                });
+            }
+        }
+
+        // JavaScript for Mobile Menu Toggle
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        mobileMenuButton.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+    </script>
+</body>
+
+</html>
