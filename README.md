@@ -7,7 +7,7 @@ View your financial data with charts and insights for better decision-making.
 
 ......................................................................................
 Download the files
-Start the python environment
+Create python environment
 Change to financial_tracker project
 Create database in mysql and run the project "python manage.py runserver"
 Enjoy your financial tracker
